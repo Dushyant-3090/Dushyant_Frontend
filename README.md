@@ -1,70 +1,104 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# SteelEye Project
+# Question 1: Explain what the simple List component does.
+Answer: The simple List component is a React functional component that renders an unordered list of items. It consists of two sub-components: SingleListItem and List.
 
-## Available Scripts
+SingleListItem: is a memoized component that renders a single list item. It takes four props as input: index, isSelected, onClickHandler, and text. The index prop is a number that represents the position of the item in the list.
 
-In the project directory, you can run:
+List: is also a memoized component that renders a list of items. It takes one prop as input: items. The items prop is an array of objects, where each object represents a single list item.
 
-### `npm start`
+List uses the useState hook to keep track of the index of the currently selected item. It uses the useEffect hook to reset the selected index whenever the items prop changes. It also defines a handleClick function that is called when an item is clicked. This function updates the selected index state variable to the index of the clicked item.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The List component maps over the items prop and renders a SingleListItem for each item in the list. It passes the text, isSelected, and onClickHandler props to each SingleListItem. It also passes the index prop as the key prop to ensure each item is uniquely identified by React. When an item is clicked, the handleClick function is called with the index of the clicked item, which updates the selected index state variable. Finally, the isSelected prop is passed to each SingleListItem to indicate whether it is currently selected, which changes the background color of the item to green or red accordingly.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# Question 2: What problems / warnings are there with code?
+Answer: Different problems / warnings we get are:
+1. First error was we need to install the dependencies named 'props-types' by running 'npm i props-types'
 
-### `npm test`
+2. Second error was in useState of 'setSelectedIndex' and 'selectedIndex' are given in reverse order. We need to reverse it like below given: const [selectedIndex, setSelectedIndex] = useState(null);
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. Third error was in this piece of code: WrappedListComponent.propTypes = { items: PropTypes.array(PropTypes.shapeOf({ text: PropTypes.string.isRequired, })), PropsTypes.arrayOf instead of PropsTypes.array and the third error was using PropsTypes.shape instead of PropsTypes.shape.
 
-### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Question 3: Please fix, optimize, and/or modify the component as much as you think is necessary.
+Answer: After removing errors and warning. The final result is:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+## Code
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+  import PropTypes from "prop-types";
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+// Single List Item
+const SingleListItem = memo(({ index, isSelected, onClickHandler, text }) => {
+ const handleClick = () => {
+   onClickHandler(index);
+ };
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+ return (
+   <li
+     style={{ backgroundColor: isSelected ? "green" : "red" }}
+     onClick={handleClick}
+   >
+     {text}
+   </li>
+ );
+});
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+SingleListItem.propTypes = {
+ index: PropTypes.number.isRequired,
+ isSelected: PropTypes.bool.isRequired,
+ onClickHandler: PropTypes.func.isRequired,
+ text: PropTypes.string.isRequired
+};
 
-## Learn More
+// List Component
+const List = memo(({ items }) => {
+ const [selectedIndex, setSelectedIndex] = useState(null);
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+ useEffect(() => {
+   setSelectedIndex(null);
+ }, [items]);
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+ const handleClick = (index) => {
+   setSelectedIndex(index);
+ };
 
-### Code Splitting
+ return (
+   <ul style={{ textAlign: "left" }}>
+     {items.map((item, index) => (
+       <SingleListItem
+         key={index}
+         index={index}
+         isSelected={selectedIndex === index}
+         onClickHandler={handleClick}
+         text={item.text}
+       />
+     ))}
+   </ul>
+ );
+});
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+List.propTypes = {
+ items: PropTypes.arrayOf(
+   PropTypes.shape({
+     text: PropTypes.string.isRequired
+   })
+ )
+};
 
-### Analyzing the Bundle Size
+List.defaultProps = {
+ items: [
+   { text: "Item1" },
+   { text: "Item2" },
+   { text: "Item3" },
+   { text: "Item4" }
+ ]
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+export default List; 
+```
 
-### Making a Progressive Web App
+# Ouput Window :
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
